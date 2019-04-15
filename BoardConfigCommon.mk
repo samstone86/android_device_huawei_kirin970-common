@@ -63,6 +63,9 @@ BOARD_HAVE_BLUETOOTH := true
 # Board
 TARGET_BOARD_INFO_FILE := $(VENDOR_PATH)/board-info.txt
 
+# Camera
+BOARD_USES_SNAPDRAGONCAMERA_VERSION := 2
+
 # Display
 TARGET_USES_HWC2 := true
 
@@ -107,3 +110,4 @@ BOARD_ROOT_EXTRA_FOLDERS := \
 # SELinux
 BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(VENDOR_PATH)/sepolicy/private
 BOARD_PLAT_PUBLIC_SEPOLICY_DIR += $(VENDOR_PATH)/sepolicy/public
+include vendor/omni/sepolicy/sepolicy.mk

@@ -18,8 +18,7 @@ $(call inherit-product, vendor/huawei/kirin970-common/kirin970-common-vendor.mk)
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
-    $(LOCAL_PATH)/overlay \
-    $(LOCAL_PATH)/overlay-lineage
+    $(LOCAL_PATH)/overlay
 
 # Properties
 -include $(LOCAL_PATH)/system_prop.mk
@@ -34,7 +33,7 @@ PRODUCT_PACKAGES += \
 
 # Camera
 PRODUCT_PACKAGES += \
-    Snap
+    SnapdragonCamera2
 
 # Device init scripts
 PRODUCT_PACKAGES += \
@@ -47,10 +46,6 @@ PRODUCT_PACKAGES += \
 # Input
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/fingerprint.kl:system/usr/keylayout/fingerprint.kl
-
-# LineageHw
-PRODUCT_PACKAGES += \
-    lineage.touch@1.0-service.kirin970
 
 # NFC
 PRODUCT_PACKAGES += \
@@ -72,11 +67,3 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_BOOT_JARS += \
     telephony-ext
-
-# Recovery
-PRODUCT_PACKAGES += \
-    resize2fs_static
-
-# Trust HAL
-PRODUCT_PACKAGES += \
-    lineage.trust@1.0-service

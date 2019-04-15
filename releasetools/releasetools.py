@@ -23,7 +23,7 @@ def IncrementalOTA_Assertions(info):
 
 def FullOTA_PostValidate(info):
     info.script.AppendExtra('run_program("/sbin/e2fsck", "-fy", "/dev/block/bootdevice/by-name/system");');
-    info.script.AppendExtra('run_program("/tmp/install/bin/resize2fs_static", "/dev/block/bootdevice/by-name/system");');
+    info.script.AppendExtra('run_program("/sbin/resize2fs", "/dev/block/bootdevice/by-name/system");');
     info.script.AppendExtra('run_program("/sbin/e2fsck", "-fy", "/dev/block/bootdevice/by-name/system");');
 
 def AddVendorAssertion(info, input_zip):
