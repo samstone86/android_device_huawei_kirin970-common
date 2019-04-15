@@ -67,7 +67,3 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_BOOT_JARS += \
     telephony-ext
-
-# Recovery
-PRODUCT_PACKAGES += \
-    resize2fs_static
