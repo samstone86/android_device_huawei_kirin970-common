@@ -110,3 +110,4 @@ BOARD_ROOT_EXTRA_FOLDERS := \
 # SELinux
 BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(VENDOR_PATH)/sepolicy/private
 BOARD_PLAT_PUBLIC_SEPOLICY_DIR += $(VENDOR_PATH)/sepolicy/public
+include vendor/omni/sepolicy/sepolicy.mk
