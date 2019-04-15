@@ -63,6 +63,9 @@ BOARD_HAVE_BLUETOOTH := true
 # Board
 TARGET_BOARD_INFO_FILE := $(VENDOR_PATH)/board-info.txt
 
+# Camera
+BOARD_USES_SNAPDRAGONCAMERA_VERSION := 2
+
 # Display
 TARGET_USES_HWC2 := true
 

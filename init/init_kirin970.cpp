@@ -21,94 +21,100 @@
 #include <map>
 #include <property_service.h>
 
-constexpr auto CMDLINE_PATH = "/proc/cmdline";
-constexpr auto CMDLINE_PRODUCT_ID = "productid";
-constexpr auto PHONE_PROP_PATH = "/odm/phone.prop";
+namespace android {
+	namespace init {
 
-using android::base::ReadFileToString;
-using android::base::Split;
-using android::base::Trim;
-using android::init::property_set;
+		constexpr auto CMDLINE_PATH = "/proc/cmdline";
+		constexpr auto CMDLINE_PRODUCT_ID = "productid";
+		constexpr auto PHONE_PROP_PATH = "/odm/phone.prop";
 
-using PropertyPair = std::pair<std::string, std::string>;
-using PropertiesVector = std::vector<PropertyPair>;
+		using android::base::ReadFileToString;
+		using android::base::Split;
+		using android::base::Trim;
+		using android::init::property_set;
 
-bool GetProductId(std::string& out) {
-    std::string str;
+		using PropertyPair = std::pair<std::string, std::string>;
+		using PropertiesVector = std::vector<PropertyPair>;
 
-    if (!ReadFileToString(CMDLINE_PATH, &str)) {
-        LOG(ERROR) << "Unable to open: " << CMDLINE_PATH;
-        return false;
-    }
+		bool GetProductId(std::string& out) {
+			std::string str;
 
-    for (const auto& entry : Split(Trim(str), " ")) {
-        std::vector<std::string> pieces = Split(entry, "=");
+			if (!ReadFileToString(CMDLINE_PATH, &str)) {
+				LOG(ERROR) << "Unable to open: " << CMDLINE_PATH;
+				return false;
+			}
 
-        if (pieces.size() == 2 && pieces.at(0) == CMDLINE_PRODUCT_ID) {
-            out = pieces.at(1);
-            std::transform(out.begin(), out.end(), out.begin(), ::toupper);
-            return true;
-        }
-    }
+			for (const auto& entry : Split(Trim(str), " ")) {
+				std::vector<std::string> pieces = Split(entry, "=");
 
-    return false;
-}
+				if (pieces.size() == 2 && pieces.at(0) == CMDLINE_PRODUCT_ID) {
+					out = pieces.at(1);
+					std::transform(out.begin(), out.end(), out.begin(), ::toupper);
+					return true;
+				}
+			}
 
-bool GetPropertiesFromPhoneProp(std::map<std::string, PropertiesVector>& out) {
-    std::ifstream file(PHONE_PROP_PATH);
+			return false;
+		}
 
-    if (!file.is_open()) {
-        LOG(ERROR) << "Unable to open: " << PHONE_PROP_PATH;
-        return false;
-    }
+		bool GetPropertiesFromPhoneProp(std::map<std::string, PropertiesVector>& out) {
+			std::ifstream file(PHONE_PROP_PATH);
 
-    std::string currentProductId;
-    std::string line;
+			if (!file.is_open()) {
+				LOG(ERROR) << "Unable to open: " << PHONE_PROP_PATH;
+				return false;
+			}
 
-    while (std::getline(file, line)) {
-        if (line.empty()) {
-            continue;
-        }
+			std::string currentProductId;
+			std::string line;
 
-        // Example product id line format: [0X39620484]:
-        if (line.length() == 13 && line.at(0) == '[' && line.at(11) == ']') {
-            currentProductId = line.substr(1, 10);
-            continue;
-        }
+			while (std::getline(file, line)) {
+				if (line.empty()) {
+					continue;
+				}
 
-        // Checking if currentProductId isn't empty just in case someone breaks their phone.prop
-        if (!currentProductId.empty()) {
-            std::vector<std::string> pieces = Split(line, "=");
+				// Example product id line format: [0X39620484]:
+				if (line.length() == 13 && line.at(0) == '[' && line.at(11) == ']') {
+					currentProductId = line.substr(1, 10);
+					continue;
+				}
 
-            if (pieces.size() == 2) {
-                out[currentProductId].push_back({pieces.at(0), pieces.at(1)});
-            }
-        }
-    }
+				// Checking if currentProductId isn't empty just in case someone breaks their phone.prop
+				if (!currentProductId.empty()) {
+					std::vector<std::string> pieces = Split(line, "=");
 
-    return true;
-}
+					if (pieces.size() == 2) {
+						out[currentProductId].push_back({ pieces.at(0), pieces.at(1) });
+					}
+				}
+			}
 
-void vendor_load_properties() {
-    std::string productId;
+			return true;
+		}
 
-    if (!GetProductId(productId)) {
-        return;
-    }
+		void vendor_load_properties() {
+			std::string productId;
 
-    std::map<std::string, PropertiesVector> properties;
+			if (!GetProductId(productId)) {
+				return;
+			}
 
-    if (!GetPropertiesFromPhoneProp(properties)) {
-        return;
-    }
+			std::map<std::string, PropertiesVector> properties;
 
-    auto it = properties.find(productId);
+			if (!GetPropertiesFromPhoneProp(properties)) {
+				return;
+			}
 
-    if (it != properties.end()) {
-        for (const auto& prop : properties.at(productId)) {
-            if (!property_set(prop.first.c_str(), prop.second.c_str())) {
-                LOG(ERROR) << "Unable to set property " << prop.first << " to " << prop.second;
-            }
-        }
-    }
-}
+			auto it = properties.find(productId);
+
+			if (it != properties.end()) {
+				for (const auto& prop : properties.at(productId)) {
+					if (!property_set(prop.first.c_str(), prop.second.c_str())) {
+						LOG(ERROR) << "Unable to set property " << prop.first << " to " << prop.second;
+					}
+				}
+			}
+		}
+
+	}  // namespace init
+}  // namespace android
